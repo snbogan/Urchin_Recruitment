@@ -33,7 +33,7 @@ ARQ_CTD_df <- read.csv("arroyoquemado_mooring_arq_20200108.csv")
 ALE_CTD_df <- read.csv("alegria_mooring_ale_20201230.csv")
 NAP_CTD_df <- read.csv("naples_mooring_nap_20201230.csv")
 MKO_CTD_df <- read.csv("mohawk_mooring_mko_20201230.csv")
-SBH_CTD_df <- read.csv("sternswharf_mooring_sbh_20210303.csv")
+#SBH_CTD_df <- read.csv("sternswharf_mooring_sbh_20210303.csv")
 CAR_CTD_df <- read.csv("carpinteria_mooring_car_20201230.csv")
 
 # Extract relevant columns according to SBC-LTER data description
@@ -41,7 +41,7 @@ ARQ_CTD_temp <- ARQ_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
 ALE_CTD_temp <- ALE_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
 NAP_CTD_temp <- NAP_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
 MKO_CTD_temp <- MKO_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
-SBH_CTD_temp <- SBH_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
+#SBH_CTD_temp <- SBH_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
 CAR_CTD_temp <- CAR_CTD_df %>% select(1,2,3,4,5,54,55,56,57)
 
 # Name kept columns according to SBC-LTER data description
@@ -53,8 +53,8 @@ colnames(NAP_CTD_temp) <- c("Date_time", "Year", "Month", "Day", "Frac_day",
                             "Temp_adcp", "Temp_top", "Temp_mid", "Temp_bot")
 colnames(MKO_CTD_temp) <- c("Date_time", "Year", "Month", "Day", "Frac_day",
                             "Temp_adcp", "Temp_top", "Temp_mid", "Temp_bot")
-colnames(SBH_CTD_temp) <- c("Date_time", "Year", "Month", "Day", "Frac_day",
-                            "Temp_adcp", "Temp_top", "Temp_mid", "Temp_bot")
+#colnames(SBH_CTD_temp) <- c("Date_time", "Year", "Month", "Day", "Frac_day",
+                            #"Temp_adcp", "Temp_top", "Temp_mid", "Temp_bot")
 colnames(CAR_CTD_temp) <- c("Date_time", "Year", "Month", "Day", "Frac_day",
                             "Temp_adcp", "Temp_top", "Temp_mid", "Temp_bot")
 
