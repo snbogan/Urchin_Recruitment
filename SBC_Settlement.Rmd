@@ -13,7 +13,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 
 # Set working directory
-setwd("~/Documents/SBC_Settlement_Analysis/")
+setwd("~/Documents/GitHub/Urchin_Recruitment//")
 
 
 ```
@@ -164,8 +164,8 @@ species_recr_df <- filter(rbind(data.frame(Species = "Spur",
 ggplot(data = species_recr_df,
        aes(x = Retrieval, y = Recr_rate, color = Species, fill = Species)) +
   geom_point(size = .5) +
-  scale_color_manual(values = c("Purple", "Red")) +
-  scale_fill_manual(values = c("Purple", "Red")) +
+  scale_color_manual(values = c("Red", "White")) +
+  scale_fill_manual(values = c("Red", "White")) +
   theme_classic(base_size = 12) +
   scale_y_continuous(lim = c(0, 15)) +
   theme(legend.position = "none") +
@@ -377,6 +377,28 @@ recr_brm_spat <- brm(spur_plus_1 ~ Month_Z + Month_2_Z + Month_3_Z + Temp_top_Z 
 # Save brm output
 save(recr_brm_spat, file = "recr_brm_spat.RData")
 
+## Model lag effect of temperature
+year_temp_mean <- summarySE(measurevar = "Temp_top_Z",
+                            groupvars = c("Year_fctr"),
+                            data = settlement_by_temp_species_filt)
+
+names(year_temp_mean)[3] <- "Year_avg_temp_Z"
+
+settlement_by_temp_species_filt_avg <- merge(settlement_by_temp_species_filt,
+                                         data.frame(Year_fctr = as.factor((as.numeric(year_temp_mean$Year_fctr) - 1)),
+                                                    Year_avg_temp_Z = year_temp_mean$Year_avg_temp_Z),
+                                         by = "Year_fctr")
+
+recr_brm_spat_lag <- brm(spur_plus_1 ~ Month_Z + Month_2_Z + Month_3_Z + Temp_top_Z + Year_fctr + 
+                           Year_avg_temp_Z:Temp_top_Z:Species + #Fit interactive effect 
+                           gp(Lat, Long), # Fit spatial distance matrix as random variable
+                         data = settlement_by_temp_species_filt_avg,
+                         family = weibull(), # Use Weibull distribution to accomodate zero inflation of data
+                         prior = c(prior(normal(0, 10), class = Intercept), # Set weak intercept prior
+                                   prior(normal(0, 10), class = b)), # Set weak intercept prior
+                         cores = 2, # Use two computer cores because this model takes a while
+                         iter = 10000) # Currently using 10k iterations for the sake of time
+
 ```
 
 Plot and evaluate model predictions
@@ -432,19 +454,19 @@ ggplot(data = models_by_year_species_results,
   scale_color_viridis_c() +
   labs(y = "Temperature effect", x = "Year") +
   facet_wrap(~Species) +
-  scale_fill_manual(values = c("purple", "red"))
+  scale_fill_manual(values = c("red", "purple"))
 
 require("scales")
 
-ggplot(data = p_species_brm_st5, aes(x = Temp_top_Z, y = spur_plus_1, color = Species)) +
+ggplot(data = p_species_brm_st5, aes(x = Temp_top_Z, y = prop_rate, color = Species)) +
   geom_point(size = .5,) +
-  geom_smooth(method = "loess", span = 1, fullrange = TRUE) +
+  geom_smooth(method = "lm", fullrange = TRUE) +
   theme_classic(base_size = 20, base_rect_size = 0) +
   theme(legend.position = "none") +
   labs(y = "Proportion of recruitment", x = "Scaled monthly SST") +
   facet_wrap(~Species) +
   scale_color_manual(values = c("purple", "red")) +
-  #coord_cartesian(ylim=c(0, 0.045)) +
+  coord_cartesian(ylim=c(1.0, NA)) +
   theme(strip.text.x = element_blank())
  
 # Observed vs fitted plot
@@ -462,7 +484,7 @@ species_posts <- rbind(data.frame(Sample = sp5_post_samples$`b_Temp_top_Z:Year_Z
 
 ggplot(data = species_posts, aes(x = Sample, group = Species, fill = Species)) +
          geom_density(alpha = 0.5, size = 1) +
-  scale_fill_manual(values = c("purple", "red")) +
+  scale_fill_manual(values = c("red", "purple")) +
   geom_vline(xintercept = 0, lty = 2, size = 2) +
   labs(x = "Interaction (SST:year)", y = "Density") +
   annotate(geom = "text", x = .002, y = 1500, size = 8,
